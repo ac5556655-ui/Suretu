@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Secure Terminal</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: #00ff00;
+    font-family: "Courier New", monospace;
+    font-size: 17px;
+    padding: 15px;
+    height: 100vh;
+}
+
+#terminal {
+    white-space: pre-wrap;
+}
+
+.prompt { color: #00ff00; }
+.red { color: red; font-weight: bold; }
+
+.cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: #00ff00;
+    animation: blink 1s infinite;
+    vertical-align: bottom;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* REAL INPUT (hidden but active) */
+#realInput {
+    position: fixed;
+    bottom: 0;
+    opacity: 0;
+}
+</style>
+</head>
+
+<body onclick="focusInput()">
+
+<input id="realInput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+
+<div id="terminal">
+Secure shell loaded...
+Awaiting input...
+
+<span class="prompt">root@system:~$ </span><span id="display"></span><span class="cursor"></span>
+</div>
+
+<script>
+const input = document.getElementById("realInput");
+const terminal = document.getElementById("terminal");
+const display = document.getElementById("display");
+
+function focusInput() {
+    input.focus();
+}
+
+input.addEventListener("input", () => {
+    display.textContent = input.value;
+});
+
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        const command = input.value.trim();
+        terminal.innerHTML += command + "\n";
+
+        if (command === "abhisuretu") {
+            terminal.innerHTML += "DATA SAVED\n";
+            terminal.innerHTML += "<span class='red'>SELF DESTRUCT INITIATED</span>\n";
+            selfDestruct();
+        } else {
+            terminal.innerHTML += "command not found\n";
+            newPrompt();
+        }
+
+        input.value = "";
+        display.textContent = "";
+        e.preventDefault();
+    }
+});
+
+function newPrompt() {
+    terminal.innerHTML += `<span class="prompt">root@system:~$ </span><span id="display"></span><span class="cursor"></span>`;
+}
+
+function selfDestruct() {
+    let count = 5;
+    const timer = setInterval(() => {
+        terminal.innerHTML += `<span class="red">${count}...</span>\n`;
+        count--;
+        if (count < 0) {
+            clearInterval(timer);
+            terminal.innerHTML = "<span class='red'>💥 SYSTEM DESTROYED 💥</span>";
+            document.body.style.background = "darkred";
+        }
+    }, 700);
+}
+
+// auto focus on load
+setTimeout(focusInput, 500);
+</script>
+</body>
+</html>
